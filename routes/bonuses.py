@@ -70,8 +70,8 @@ def approve_bonus(bonus_id: int,
     # 5️⃣ Disburse money if approved
     if approve:
         try:
-            get_auth_token()
-            send_to_customer(amount=bonus.amount, phone_number=bonus.customer.phone_number)
+            #get_auth_token()
+            #send_to_customer(amount=bonus.amount, phone_number=bonus.customer.phone_number)
             bonus.paid_at = datetime.now()
         except Exception as e:
             db.rollback()
