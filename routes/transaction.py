@@ -35,7 +35,7 @@ async def relation_manager_deposit(
            wallet_id=wallet.id,
                          
         )
-    transaction.checkout_request_id=response.get('CheckoutRequestID')
+    transaction.checkout_id=response.get('CheckoutRequestID')
     transaction.status='pending'
     db.add(transaction)
     db.commit()
