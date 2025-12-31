@@ -27,9 +27,8 @@ async def relation_manager_deposit(
         )
     #stk push to deposit since we are depositing into our account i expect it htoe be the following 
     print(user.phone_number)
-    response=send_stk_push(user.phone_number,trans.amount)
-    #response=get_stk_push(user.phone_number,trans.amoun)
-    #response=background_tasks.add_task(send_stk_push, '254721676091', '174379', trans.amount)
+    response=send_prompt_push(user.phone_number,trans.amount)
+    
     transaction=Transaction(description=trans.description,
            amount=trans.amount,
            wallet_id=wallet.id,
