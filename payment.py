@@ -25,7 +25,7 @@ def get_access_token():
         return {'message':'failed to get the token'}
 
 
-def get_stk_push(phone_number,amount):
+def send_stk_push(phone_number,amount):
 
     token=get_access_token()
     url="https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
