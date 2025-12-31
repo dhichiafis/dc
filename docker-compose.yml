@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ale3_db
+    environment:
+      POSTGRES_USER: aleuser
+      POSTGRES_PASSWORD: alepass
+      POSTGRES_DB: aledb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aleuser -d aledb -h localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+
+  app:
+    build: .
+    container_name: ale3_app
+    environment:
+      DB_URL: postgresql+psycopg2://aleuser:alepass@db:5432/aledb
+    depends_on:
+      db:
+        condition: service_healthy  # Only start app when db is healthy
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "
+      alembic upgrade head &&
+      uvicorn main:app --host 0.0.0.0 --port 8000
+      "
+
+volumes:
+  postgres_data:
