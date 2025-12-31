@@ -1,0 +1,193 @@
+from fastapi import APIRouter,Depends,HTTPException,status,Request
+from sqlalchemy.orm import Session 
+from database import *
+from models.model import *
+from models.schema import *
+from security import *
+from payment import *
+from fastapi import BackgroundTasks
+
+transaction_router=APIRouter(prefix='/transactions',tags=['transactions'])
+
+
+
+@transaction_router.post('/relation/manager/deposit'
+    ,response_model=TransactionBase)
+async def relation_manager_deposit(
+    trans:TransactionCreate,
+    background_tasks: BackgroundTasks,
+    user:User=Depends(RoleChecker(['relation manager'])),
+    db:Session=Depends(connect)):
+    
+    wallet=db.query(Wallet).filter(Wallet.user_id==user.id).first()
+    if not wallet:
+        raise HTTPException(
+            detail='wallet for the user does not',
+            status_code=403
+        )
+    #stk push to deposit since we are depositing into our account i expect it htoe be the following 
+    print(user.phone_number)
+    response=send_stk_push('254721676091','174379',trans.amount)
+    
+    #response=background_tasks.add_task(send_stk_push, '254721676091', '174379', trans.amount)
+    transaction=Transaction(description=trans.description,
+           amount=trans.amount,
+           wallet_id=wallet.id,
+                         
+        )
+    transaction.checkout_request_id=response.get('CheckoutRequestID')
+    transaction.status='pending'
+    db.add(transaction)
+    db.commit()
+    db.refresh(transaction)
+    print(response)
+    #its herer that when the transaction is successfull we record the debit and credit right
+    #if the transaction is not successfull then the transaction status is turned to fiaild 
+    #cash_account=db.query(Account).filter(Account.name=='Cash Account').first()
+    #deposit_account=db.query(Account).filter(Account.name=='Bank Deposit').first()
+
+    #if not cash_account:
+     #   raise HTTPException(
+      #      detail='account does not exist',
+       #     status_code=400
+        #)
+    #if not deposit_account:
+     #   raise HTTPException(
+      #      detail='account does not exist',
+       #     status_code=400
+        #)
+    #cash_entry=Entry(description=trans.description,
+     #       debit=transaction.amount,
+      #      credit=0.0,
+       #     account_id=cash_account.id,
+        #    transaction_id=transaction.id
+         #   )
+    
+    #deposit_entry=Entry(description=trans.description,
+     #               debit=0.0,credit=transaction.amount,
+      #              account_id=deposit_account.id,
+       #             transaction_id=transaction.id
+        #            )
+    #db.add_all([cash_entry,deposit_entry])
+    #db.commit()
+    #db.refresh(cash_entry)
+    #db.refresh(deposit_entry)
+    
+    
+    
+    return transaction
+
+
+#our real stk push happens in the callback which we are going to expose to ngrok
+#as a testing ground
+@transaction_router.post("/mpesa/callback")
+async def mpesa_callback(request: Request, db: Session = Depends(connect)):
+    payload = await request.json()
+
+    stk = payload["Body"]["stkCallback"]
+    checkout_id = stk["CheckoutRequestID"]
+    result_code = stk["ResultCode"]
+
+    transaction = db.query(Transaction).filter(
+        Transaction.checkout_request_id == checkout_id
+    ).first()
+
+    if not transaction:
+        return {"ResultCode": 0, "ResultDesc": "Accepted"}
+
+    if result_code == 0:
+        transaction.status = "completed"
+        # TODO: create accounting entries here
+    else:
+        transaction.status = "failed"
+
+    db.commit()
+
+    # Safaricom expects THIS
+    return {
+        "ResultCode": 0,
+        "ResultDesc": "Accepted"
+    }
+
+
+
+@transaction_router.get('/by/me',response_model=list[TransactionBase])
+async def get_transactions_by_rm(
+    db:Session=Depends(connect),
+    user:User=Depends(RoleChecker(['relation manager','admin']))
+):
+    transactions=db.query(Transaction).filter(Transaction.wallet.user_id==user.id).all()
+    return transactions 
+
+@transaction_router.get('/all',response_model=list[TransactionBase])
+async def get_all_transactions(
+    db:Session=Depends(connect),
+    user:User=Depends(RoleChecker(['admin']))
+):
+    transactions=db.query(Transaction).all()
+    return transactions
+
+
+
+'''
+@transaction_router.post('/relation/manager/deposit', response_model=TransactionBase)
+async def relation_manager_deposit(
+    trans: TransactionCreate,
+    user: User = Depends(RoleChecker(['relation manager'])),
+    db: Session = Depends(connect)
+):
+    print(user.role.name)
+    print(user)
+    # Fetch wallet
+    wallet = db.query(Wallet).filter(Wallet.user_id == user.id).first()
+
+    # Correct logic
+    if not wallet:
+        raise HTTPException(
+            detail='Wallet for this user does not exist',
+            status_code=403
+        )
+
+    # Create transaction
+    transaction = Transaction(
+        description=trans.description,
+        amount=trans.amount,
+        wallet_id=wallet.id                 
+    )
+
+    db.add(transaction)
+    db.commit()
+    db.refresh(transaction)
+
+    # Fetch accounts
+    cash_account = db.query(Account).filter(Account.name == 'Cash Account').first()
+    deposit_account = db.query(Account).filter(Account.name == 'Bank Deposit').first()
+
+    if not cash_account or not deposit_account:
+        raise HTTPException(
+            detail='Required accounts do not exist',
+            status_code=400
+        )
+
+    # Create entries
+    cash_entry = Entry(
+        description=trans.description,
+        debit=transaction.amount,
+        credit=0.0,
+        account_id=cash_account.id,
+        transaction_id=transaction.id
+    )
+    
+    deposit_entry = Entry(
+        description=trans.description,
+        debit=0.0,
+        credit=transaction.amount,
+        account_id=deposit_account.id,
+        transaction_id=transaction.id
+    )
+
+    db.add_all([cash_entry, deposit_entry])
+    db.commit()
+
+    return transaction
+'''

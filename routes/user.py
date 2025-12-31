@@ -1,0 +1,186 @@
+from fastapi import APIRouter,Depends,HTTPException,status
+from models.model import *
+from models.schema import *
+from sqlalchemy.orm import Session 
+from security import *
+from database import *
+
+from typing import Annotated
+users_router=APIRouter(tags=['users'],prefix='/users')
+
+
+@users_router.post('/token')
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm=Depends(),
+    db:Session=Depends(connect)
+) -> Token:
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username,}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
+
+
+
+@users_router.post('/admin',response_model=UserBase)
+async def create_admin(
+    bank_admin:BankAdmin,
+    
+    db:Session=Depends(connect)
+):
+    bank_exist=db.query(Bank).filter(Bank.name==bank_admin.bank_name).first()
+    if bank_exist:
+        raise HTTPException(
+            detail='bank already created',
+            status_code=400
+        )
+    bank=Bank(name=bank_admin.bank_name)
+    db.add(bank)
+    db.flush()
+    role_exist=db.query(Role).filter(Role.name=='admin').first()
+    if not role_exist:
+        raise HTTPException(
+            detail='role is not created yet',
+            status_code=402
+        )
+    user_exist=db.query(User).filter(User.username==bank_admin.username).first()
+    if user_exist:
+        raise HTTPException(
+            detail='user with username already exist',
+            status_code=401)
+    
+    password=get_password_hash(bank_admin.password)
+    user=User(username=bank_admin.username,
+            phone_number=bank_admin.phone_number,
+            password=password,bank_id=bank.id,role_id=role_exist.id)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    wallet=Wallet()
+    wallet.user_id=user.id 
+    wallet.is_bank=True
+    db.add(wallet)
+    db.commit()
+    db.refresh(wallet)
+    return user
+
+
+@users_router.post('/new/customer',response_model=UserBase)
+async def create_new_customer(
+    customer:CustomerCreate,
+    db:Session=Depends(connect)
+):
+    bank=db.query(Bank).first()
+    if not bank:
+        raise HTTPException(
+            detail='bank does not exist',
+            status_code=401
+        )
+    role_exist=db.query(Role).filter(Role.name=='customer').first()
+    if not role_exist:
+        raise HTTPException(
+            detail='role does not exist',
+            status_code=401
+        )
+    password=get_password_hash(customer.password)
+    user=User(username=customer.username,
+              phone_number=customer.phone_number
+              ,password=password,role_id=role_exist.id,bank_id=bank.id)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    wallet=Wallet()
+    wallet.user_id=user.id 
+    wallet.is_bank=False
+    db.add(wallet)
+    db.commit()
+    db.refresh(wallet)
+    return user
+
+@users_router.post('/relationship/manager',response_model=UserBase)
+async def create_relationship_manager(
+    user:RmCreate,
+    db:Session=Depends(connect)
+):
+    bank_exist=db.query(Bank).first()
+    if not bank_exist:
+        raise HTTPException(
+            detail='bank not created',
+            status_code=400
+        )
+    
+    role_exist=db.query(Role).filter(Role.name=='relation manager').first()
+    if not role_exist:
+        raise HTTPException(
+            detail='role is not created yet',
+            status_code=402
+        )
+    user_exist=db.query(User).filter(User.username==user.username).first()
+    if user_exist:
+        raise HTTPException(
+            detail='user with username already exist',
+            status_code=401)
+    
+    password=get_password_hash(user.password)
+    user=User(username=user.username,
+            password=password,
+            phone_number=user.phone_number,
+            bank_id=bank_exist.id,
+            role_id=role_exist.id)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    wallet=Wallet()
+    wallet.user_id=user.id
+    wallet.is_bank=False
+    db.add(wallet)
+    db.commit()
+    db.refresh(wallet)
+    return user
+
+
+
+@users_router.get('/all',response_model=List[UserBase])
+async def get_all_users(
+    user:User=Depends(RoleChecker(['admin'])),
+    db:Session=Depends(connect)):
+    return db.query(User).all()
+
+
+@users_router.get("/users/me/", response_model=UserBase)
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    return current_user
+
+
+'''
+
+@users_router.post('/token')
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm=Depends(),
+    db:Session=Depends(connect)
+) -> Token:
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username,"role":user.role.name}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
+'''
