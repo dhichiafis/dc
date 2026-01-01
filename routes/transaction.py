@@ -27,7 +27,9 @@ async def relation_manager_deposit(
         )
     #stk push to deposit since we are depositing into our account i expect it htoe be the following 
     print(user.phone_number)
-    response=send_prompt_push(user.phone_number,trans.amount)
+    formatted_phone_number = format_phone_number(user.phone_number)
+    response = send_prompt_push(formatted_phone_number, trans.amount)
+    #response=send_prompt_push(user.phone_number,trans.amount)
     
     transaction=Transaction(description=trans.description,
            amount=trans.amount,

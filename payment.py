@@ -66,3 +66,16 @@ def send_prompt_push(phone_number,amount):
         headers=headers
     )
     return response.json()
+
+
+
+
+
+
+def format_phone_number(phone_number: str) -> str:
+    # Ensure the phone number starts with '254' and remove any extra characters like spaces or '+'
+    if phone_number.startswith('0'):
+        phone_number = '254' + phone_number[1:]
+    elif phone_number.startswith('+'):
+        phone_number = '254' + phone_number[1:]
+    return phone_number
