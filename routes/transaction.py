@@ -91,7 +91,7 @@ async def mpesa_callback(request: Request, db: Session = Depends(connect)):
     result_code = stk["ResultCode"]
 
     transaction = db.query(Transaction).filter(
-        Transaction.checkout_request_id == checkout_id
+        Transaction.checkout_id == checkout_id
     ).first()
 
     if not transaction:
