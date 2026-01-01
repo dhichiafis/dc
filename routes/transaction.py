@@ -4,7 +4,7 @@ from database import *
 from models.model import *
 from models.schema import *
 from security import *
-from payment import send_stk_push
+from payment import *
 from fastapi import BackgroundTasks
 
 transaction_router=APIRouter(prefix='/transactions',tags=['transactions'])
