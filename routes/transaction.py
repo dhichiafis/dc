@@ -45,36 +45,6 @@ async def relation_manager_deposit(
     print(response)
     #its herer that when the transaction is successfull we record the debit and credit right
     #if the transaction is not successfull then the transaction status is turned to fiaild 
-    cash_account=db.query(Account).filter(Account.name=='Cash Account').first()
-    deposit_account=db.query(Account).filter(Account.name=='Bank Deposit').first()
-
-    if not cash_account:
-        raise HTTPException(
-            detail='account does not exist',
-            status_code=400
-        )
-    if not deposit_account:
-        raise HTTPException(
-            detail='account does not exist',
-            status_code=400
-        )
-    cash_entry=Entry(description=trans.description,
-            debit=transaction.amount,
-            credit=0.0,
-            account_id=cash_account.id,
-            transaction_id=transaction.id
-            )
-    
-    deposit_entry=Entry(description=trans.description,
-                    debit=0.0,credit=transaction.amount,
-                    account_id=deposit_account.id,
-                    transaction_id=transaction.id
-                    )
-    db.add_all([cash_entry,deposit_entry])
-    db.commit()
-    db.refresh(cash_entry)
-    db.refresh(deposit_entry)
-    
     
     
     return transaction
@@ -99,7 +69,37 @@ async def mpesa_callback(request: Request, db: Session = Depends(connect)):
 
     if result_code == 0:
         transaction.status = "completed"
-        # TODO: create accounting entries here
+        cash_account=db.query(Account).filter(Account.name=='Cash Account').first()
+        deposit_account=db.query(Account).filter(Account.name=='Bank Deposit').first()
+
+        if not cash_account:
+            raise HTTPException(
+                detail='account does not exist',
+            status_code=400
+            )
+        if not deposit_account:
+            raise HTTPException(
+            detail='account does not exist',
+            status_code=400
+            )
+        cash_entry=Entry(description=transaction.description,
+            debit=transaction.amount,
+            credit=0.0,
+            account_id=cash_account.id,
+            transaction_id=transaction.id
+            )
+    
+        deposit_entry=Entry(description=transaction.description,
+                    debit=0.0,credit=transaction.amount,
+                    account_id=deposit_account.id,
+                    transaction_id=transaction.id
+                    )
+        db.add_all([cash_entry,deposit_entry])
+        db.commit()
+        db.refresh(cash_entry)
+        db.refresh(deposit_entry)
+    
+    
     else:
         transaction.status = "failed"
 

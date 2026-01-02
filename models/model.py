@@ -18,6 +18,16 @@ class Role(Base):
     name=Column('name',String,unique=True)
     users=relationship('User',back_populates='role')
 
+class Manage(Base):
+    __tablename__ = 'manages'
+    id = Column(Integer, primary_key=True)
+    manager_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    subordinate_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+
+    manager = relationship('User', foreign_keys=[manager_id], back_populates='managing')
+    subordinate = relationship('User', foreign_keys=[subordinate_id], back_populates='managed_by')
+
+
 class User(Base):
     __tablename__='users'
     id=Column('id',Integer,primary_key=True)
@@ -31,6 +41,8 @@ class User(Base):
     updated_at=Column('updated_at',DateTime,default=datetime.now)
     bank=relationship('Bank',back_populates='users')
     role=relationship('Role',back_populates='users')
+    managing = relationship('Manage', foreign_keys='Manage.manager_id', back_populates='manager')
+    managed_by = relationship('Manage', foreign_keys='Manage.subordinate_id', back_populates='subordinate', uselist=False)
 
     wallet=relationship('Wallet',back_populates='user')
     products=relationship('Product',back_populates='creator')

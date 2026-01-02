@@ -76,7 +76,8 @@ async def create_admin(
 @users_router.post('/new/customer',response_model=UserBase)
 async def create_new_customer(
     customer:CustomerCreate,
-    db:Session=Depends(connect)
+    db:Session=Depends(connect),
+    ma:User=Depends(RoleChecker(['admin','relation manager']))
 ):
     bank=db.query(Bank).first()
     if not bank:
@@ -98,6 +99,13 @@ async def create_new_customer(
     db.commit()
     db.refresh(user)
 
+    manage=Manage(
+        subordinate_id=user.id,
+        manager_id=ma.id
+    )
+    db.add(manage)
+    db.commit()
+
     wallet=Wallet()
     wallet.user_id=user.id 
     wallet.is_bank=False
@@ -109,7 +117,8 @@ async def create_new_customer(
 @users_router.post('/relationship/manager',response_model=UserBase)
 async def create_relationship_manager(
     user:RmCreate,
-    db:Session=Depends(connect)
+    db:Session=Depends(connect),
+    us:User=Depends(RoleChecker(['admin']))
 ):
     bank_exist=db.query(Bank).first()
     if not bank_exist:
@@ -139,7 +148,12 @@ async def create_relationship_manager(
     db.add(user)
     db.commit()
     db.refresh(user)
-
+    manage=Manage(
+        subordinate_id=user.id,
+        manager_id=us.id
+    )
+    db.add(manage)
+    db.commit()
     wallet=Wallet()
     wallet.user_id=user.id
     wallet.is_bank=False
