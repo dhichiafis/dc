@@ -1,10 +1,29 @@
-from fastapi import APIRouter,Depends,HTTPException,status
+from fastapi import APIRouter,UploadFile,File,Form,UploadFile,Depends,HTTPException,status
 from sqlalchemy.orm import Session 
 from database import *
 from models.model import *
 from models.schema import *
 from security import *
 from payment import *
+import uuid
+from config import settings
+
+import cloudinary
+from cloudinary import CloudinaryImage
+import cloudinary.uploader
+import cloudinary.api
+
+import json
+#config = cloudinary.config(secure=True)
+
+
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+    api_key=settings.CLOUDINARY_API_KEY,
+    api_secret=settings.CLOUDINARY_API_SECRET,
+    secure=True
+)
+
 
 bonus_router=APIRouter(prefix='/bonuses',tags=['bonuses'])
 
@@ -12,11 +31,22 @@ bonus_router=APIRouter(prefix='/bonuses',tags=['bonuses'])
 
 @bonus_router.post('/claim',response_model=BonusRead)
 async def claim_bonus(
-    bonus:BonusCreate,
+    id:int,
+    file:UploadFile,
+    title:str=Form(...),
+    amount:float=Form(...),
+    
     db:Session=Depends(connect),
     current_user:User=Depends(get_current_user)
+
 ):
-    purchase = db.query(Purchase).filter(Purchase.id == bonus.purchase_id).first()
+    
+    file_bytes=await file.read()  
+    upload_result=cloudinary.uploader.upload(file_bytes,
+         public_id=str(uuid.uuid4()),
+         unique_filename = False, overwrite=True)
+    image = upload_result['secure_url']
+    purchase = db.query(Purchase).filter(Purchase.id == id).first()
     if not purchase:
         raise HTTPException(status_code=404, detail="Purchase not found")
 
@@ -28,12 +58,15 @@ async def claim_bonus(
     if purchase.bonus:
         raise HTTPException(status_code=400, detail="Bonus already claimed for this purchase")
 
+
+
+
     nbonus = Bonus(
         purchase_id=purchase.id,
         user_id=current_user.id,
-        amount=bonus.amount,
-        title=bonus.title,
-        image=bonus.image,
+        amount=amount,
+        title=title,
+        image=image,
         status=BonusStatus.CLAIM.value
     )
     db.add(nbonus)

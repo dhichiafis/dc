@@ -1,0 +1,37 @@
+from fastapi import APIRouter,Form,UploadFile,Depends,HTTPException,status
+from sqlalchemy.orm import Session 
+from database import *
+from models.model import *
+from models.schema import *
+from security import *
+
+
+feature_router=APIRouter(tags=['features'],prefix='/features')
+
+@feature_router.post('/new',response_model=FeatureRead)
+async def create_feature(
+        nf:FeatureCreate,
+        id:int,
+        user:User=Depends(get_current_active_user),
+        db:Session=Depends(connect)):
+    product=db.query(Product).filter(Product.id==id).first()
+    if not product:
+        raise HTTPException(
+            status_code='405',
+            detail='product not found'
+        )
+    
+    feature=Feature(name=nf.name)
+    feature.product_id=product.id 
+    db.add(feature)
+    db.commit()
+    db.refresh(feature)
+    return feature 
+
+
+@feature_router.get('/all',response_model=List[FeatureRead])
+async def get_all_features(
+    user:User=Depends(get_current_active_user),
+    db:Session=Depends(connect)):
+    features=db.query(Feature).all()
+    return features

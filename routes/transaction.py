@@ -118,8 +118,13 @@ async def get_transactions_by_rm(
     db:Session=Depends(connect),
     user:User=Depends(RoleChecker(['relation manager','admin']))
 ):
-    transactions=db.query(Transaction).filter(Transaction.wallet.user_id==user.id).all()
-    return transactions 
+    transactions = (
+    db.query(Transaction)
+    .join(Transaction.wallet)  # join the Wallet table
+    .filter(Wallet.user_id == user.id)
+    .all()
+)   
+    return transactions
 
 @transaction_router.get('/all',response_model=list[TransactionBase])
 async def get_all_transactions(

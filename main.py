@@ -3,6 +3,7 @@ from routes.user import users_router
 from routes.transaction import transaction_router
 from routes.roles import roles_router
 from routes.products import product_router
+from routes.featurers import feature_router
 from routes.purchase import purchase_router
 from routes.bonuses import bonus_router
 from routes.accounts import accounts_router
@@ -68,7 +69,7 @@ app.include_router(roles_router)
 app.include_router(product_router)
 app.include_router(purchase_router)
 app.include_router(bonus_router)
-
+app.include_router(feature_router)
 
 
 @app.get('/')

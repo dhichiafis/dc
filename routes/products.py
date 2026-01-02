@@ -1,9 +1,27 @@
-from fastapi import APIRouter,Depends,HTTPException,status
+from fastapi import APIRouter,Form,UploadFile,Depends,HTTPException,status
 from sqlalchemy.orm import Session 
 from database import *
 from models.model import *
 from models.schema import *
 from security import *
+import uuid
+from config import settings
+
+import cloudinary
+from cloudinary import CloudinaryImage
+import cloudinary.uploader
+import cloudinary.api
+
+import json
+#config = cloudinary.config(secure=True)
+
+
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+    api_key=settings.CLOUDINARY_API_KEY,
+    api_secret=settings.CLOUDINARY_API_SECRET,
+    secure=True
+)
 
 
 product_router=APIRouter(prefix='/products',tags=['products'])
@@ -11,14 +29,22 @@ product_router=APIRouter(prefix='/products',tags=['products'])
 
 @product_router.post('/new',response_model=ProductRead)
 async def create_product(
-    new_product=ProductCreate,
+    file:UploadFile,
+    title:str=Form(...),
+    description:str=Form(...),
     db:Session=Depends(connect),
     user:User=Depends(RoleChecker(['admin']))
 ):
-    
+
+    file_bytes=await file.read()  
+    upload_result=cloudinary.uploader.upload(file_bytes,
+         public_id=str(uuid.uuid4()),
+         unique_filename = False, overwrite=True)
+    srcURL = upload_result['secure_url']
     product=Product(
-        title=new_product.title,
-        description=new_product.description,
+        title=title,
+        image=srcURL,
+        description=description,
         user_id=user.id
     )
 

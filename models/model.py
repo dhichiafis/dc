@@ -65,12 +65,20 @@ class Product(Base):
     __tablename__='products'
     id=Column('id',Integer,primary_key=True)
     user_id=Column('user_id',Integer,ForeignKey('users.id'))
+    image=Column('image',String,nullable=True)
     title=Column('title',String,unique=True)
     description=Column('description',String)
     created_at=Column('created_at',DateTime,default=datetime.now)
-
+    features=relationship('Feature',back_populates='product')
     creator=relationship('User',back_populates='products')
     purchases=relationship('Purchase',back_populates='product')
+
+class Feature(Base):
+    __tablename__='features'
+    product_id=Column('product_id',Integer,ForeignKey('products.id'))
+    id=Column('id',Integer,primary_key=True)
+    name=Column('name',String)
+    product=relationship('Product',back_populates='features')
 
 class Bonus(Base):
     __tablename__='bonus'

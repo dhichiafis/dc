@@ -57,15 +57,24 @@ class BankBase(BankCreate):
     users:List[UserBase]
     model_config=ConfigDict(form_attributes=True)
 
+class FeatureCreate(BaseModel):
+    name:str 
+class FeatureRead(FeatureCreate):
+    id:int 
+    product_id:int 
+    model_config=ConfigDict(from_attributes=True)
+
 class ProductCreate(BaseModel):
     title: str
     description: str
+    image:str 
 
 
 class ProductRead(ProductCreate):
     id: int
     user_id:int
     created_at: datetime
+    feateures:List[FeatureRead]=[]
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -123,7 +132,7 @@ class TransactionCreate(BaseModel):
 class TransactionBase(TransactionCreate):
     id:int
     status:str
-    type:str 
+    type:Optional[str]=None 
     created_at:datetime 
     mpesa_receipt:Optional[str]=None
     checkout_id:Optional[str]=None
