@@ -7,6 +7,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session 
 from pwdlib import PasswordHash
+from jose import jwt,JWTError
 from pydantic import BaseModel
 
 # to get a string like this run:
