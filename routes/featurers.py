@@ -12,7 +12,7 @@ feature_router=APIRouter(tags=['features'],prefix='/features')
 async def create_feature(
         nf:FeatureCreate,
         id:int,
-        user:User=Depends(get_current_active_user),
+        user:User=Depends(RoleChecker(['admin'])),
         db:Session=Depends(connect)):
     product=db.query(Product).filter(Product.id==id).first()
     if not product:

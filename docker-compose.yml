@@ -1,4 +1,6 @@
-version: '3.8'
+
+
+version: "3.8"
 
 services:
   db:
@@ -13,27 +15,33 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aleuser -d aledb -h localhost"]
+      test: ["CMD-SHELL", "pg_isready -U aleuser -d aledb"]
       interval: 10s
       retries: 5
-      start_period: 10s
       timeout: 5s
+
+  migrate:
+    build: .
+    container_name: ale3_migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: postgresql+psycopg2://aleuser:alepass@db:5432/aledb
+    command: alembic upgrade head
+    restart: "no"
 
   app:
     build: .
     container_name: ale3_app
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     environment:
       DB_URL: postgresql+psycopg2://aleuser:alepass@db:5432/aledb
-    depends_on:
-      db:
-        condition: service_healthy  # Only start app when db is healthy
     ports:
       - "8000:8000"
-    command: >
-      sh -c "
-      alembic upgrade head &&
-      uvicorn main:app --host 0.0.0.0 --port 8000
-      "
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
 
 volumes:
   postgres_data:

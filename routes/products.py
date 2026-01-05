@@ -57,7 +57,7 @@ async def create_product(
 @product_router.get('/all',response_model=list[ProductRead])
 async def get_all_products(
     db:Session=Depends(connect),
-    user:User=Depends(RoleChecker(['admin']))
+    user:User=Depends(get_current_active_user)
 ):
     products=db.query(Product).all()
     return products
@@ -66,7 +66,8 @@ async def get_all_products(
 @product_router.get('/{id}',response_model=ProductRead)
 async def get_product(
     id:int,
-    db:Session=Depends(connect)
+    db:Session=Depends(connect),
+    user:User=Depends(get_current_active_user)
 ):
     product=db.query(Product).filter(Product.id==id).first()
     if not product:
