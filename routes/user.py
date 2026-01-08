@@ -179,6 +179,21 @@ async def read_users_me(
     return current_user
 
 
+@users_router.get('/user/surbodinates',response_model=list[UserBase])
+async def get_user_managed_by(
+    db:Session=Depends(connect),
+    user:User=Depends(RoleChecker(['relation_manager','admin']))
+):
+    return [m.subordinate for m in user.managing]
+
+
+@users_router.get('/user/manager',response_model=UserBase)
+async def get_my_manager(
+    db:Session=Depends(connect),
+    user:User=Depends(get_current_active_user)
+):
+    return user.managed_by.manager
+
 '''
 
 @users_router.post('/token')

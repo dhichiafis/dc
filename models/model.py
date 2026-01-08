@@ -42,7 +42,7 @@ class User(Base):
     bank=relationship('Bank',back_populates='users')
     role=relationship('Role',back_populates='users')
     managing = relationship('Manage', foreign_keys='Manage.manager_id', back_populates='manager')
-    managed_by = relationship('Manage', foreign_keys='Manage.subordinate_id', back_populates='subordinate', uselist=False)
+    managed_by = relationship('Manage',foreign_keys='Manage.subordinate_id', back_populates='subordinate', uselist=False)
 
     wallet=relationship('Wallet',back_populates='user')
     products=relationship('Product',back_populates='creator')
