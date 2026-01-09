@@ -80,12 +80,14 @@ class ProductRead(ProductCreate):
 
 class PurchaseCreate(BaseModel):
     product_id: int
-    customer_id: int
-    seller_id: int
+   
+    
 
 
 class PurchaseRead(BaseModel):
     id: int
+    seller_id: int
+    customer_id: int
     created_at: datetime
     product: ProductRead
     customer: UserCreate

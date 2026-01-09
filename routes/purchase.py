@@ -23,12 +23,23 @@ def create_purchase(
     product = db.query(Product).filter(Product.id == purchase_in.product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+    # the buyer must have a manager
 
+    if not current_user.managed_by:
+        raise HTTPException(
+            status_code=400,
+            detail="You must be assigned to a manager to make a purchase"
+        )
+
+    seller = current_user.managed_by.manager
     #  Validate seller exists
-    seller = db.query(User).filter(User.id == purchase_in.seller_id).first()
-    if not seller:
-        raise HTTPException(status_code=404, detail="Seller not found")
-
+    
+     # 3. Bank isolation
+    if seller.bank_id != current_user.bank_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Seller belongs to a different bank"
+        )
     #  Create purchase record
     purchase = Purchase(
         product_id=purchase_in.product_id,
