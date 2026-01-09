@@ -5,6 +5,7 @@ from sqlalchemy import pool
 from models.model import User
 from database import Base 
 from alembic import context
+from config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -50,7 +51,7 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-
+config.set_main_option("sqlalchemy.url", settings.DB_URL)
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
