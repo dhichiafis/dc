@@ -163,7 +163,19 @@ async def create_relationship_manager(
     db.refresh(wallet)
     return user
 
-
+@users_router.delete('/{id}')
+async def delete_user(id:int,
+    db:Session=Depends(connect),                  
+    cuser:User=Depends(RoleChecker(['admin']))):
+    users=db.query(User).filter(User.id==id).first()
+    if not users:
+        raise HTTPException(
+            detail='user not found',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    db.delete(users)
+    db.commit()
+    
 
 @users_router.get('/all',response_model=List[UserBase])
 async def get_all_users(
