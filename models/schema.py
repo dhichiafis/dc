@@ -14,6 +14,7 @@ class BonusStatus(str,Enum):
     CREATED='created'
     CLAIM='claim'
     APPROVED='approved'
+    DISBURSED='disbursed'
     REJECTED='rejected'
 
 
@@ -80,14 +81,20 @@ class ProductRead(ProductCreate):
 
 class PurchaseCreate(BaseModel):
     product_id: int
-   
     
-
-
+    
 class PurchaseRead(BaseModel):
     id: int
-    seller_id: int
+    product_id: int
     customer_id: int
+    seller_id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class h(BaseModel):
+    id: int
     created_at: datetime
     product: ProductRead
     customer: UserCreate

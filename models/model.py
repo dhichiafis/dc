@@ -88,7 +88,7 @@ class Bonus(Base):
     amount=Column('amount',Float)
     title=Column('title',String)
     image=Column('image',String)#mpesa image
-    status=Column('status',String)#claim,create,approved rejected 
+    status=Column('status',String)#claim,create,approved disburesd rejected 
     paid_at=Column('paid_at',DateTime,default=datetime.now)
     created_at=Column('created_at',DateTime,default=datetime.now)
     updated_at=Column('updated_at',DateTime,default=datetime.now)

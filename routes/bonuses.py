@@ -121,3 +121,19 @@ def approve_bonus(bonus_id: int,
     } 
 
 
+
+
+@bonus_router.get('/all',response_model=list[BonusRead])
+async def get_all_bonuses(
+    db:Session=Depends(connect)
+):
+    bonuses=db.query(Bonus).all()
+    return bonuses
+
+
+@bonus_router.get('/my/bonuses',response_model=list[BonusRead])
+async def get_my_bonuses(
+    user:User=Depends(RoleChecker(['customer'])),
+    db:Session=Depends(connect)):
+    bonuses=db.query(Bonus).filter(Bonus.id==user.id).all()
+    return bonuses 

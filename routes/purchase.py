@@ -6,7 +6,7 @@ from models.model import Purchase, Product, User
 from models.schema import PurchaseCreate, PurchaseRead
 from database import *
 from security import get_current_user
-
+from security import *
 purchase_router = APIRouter(prefix="/purchases", tags=["Purchases"])
 
 @purchase_router.post("/", response_model=PurchaseRead)
@@ -44,7 +44,7 @@ def create_purchase(
     purchase = Purchase(
         product_id=purchase_in.product_id,
         customer_id=current_user.id,
-        seller_id=purchase_in.seller_id,
+        seller_id=seller.id,
         created_at=datetime.now()
     )
 
@@ -53,3 +53,13 @@ def create_purchase(
     db.refresh(purchase)
 
     return purchase
+
+
+@purchase_router.get('/my/purchases',response_model=list[PurchaseRead])
+async def get_my_purchases(
+    db:Session=Depends(connect),
+    user:User=Depends(RoleChecker(['customer']))
+):
+    purchases=db.query(Purchase).filter(Purchase.customer_id==user.id).all()
+    return purchases
+
