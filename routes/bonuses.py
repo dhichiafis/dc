@@ -1,4 +1,4 @@
-from fastapi import APIRouter,UploadFile,File,Form,UploadFile,Depends,HTTPException,status
+from fastapi import APIRouter,UploadFile,Query,File,Form,UploadFile,Depends,HTTPException,status
 from sqlalchemy.orm import Session 
 from database import *
 from models.model import *
@@ -136,9 +136,18 @@ async def get_all_bonuses(
 async def get_my_bonuses(
     user:User=Depends(RoleChecker(['customer'])),
     db:Session=Depends(connect)):
-    bonuses=db.query(Bonus).filter(Bonus.id==user.id).all()
+    bonuses=db.query(Bonus).filter(Bonus.user_id==user.id).all()
     return bonuses 
 
+
+@bonus_router.get('/bonus/status',response_model=list[BonusRead])
+async def get_bonuses_state(
+    bonus_state:str=Query(...),
+    db:Session=Depends(connect),
+    user:User=Depends(get_current_active_user)
+):
+    bonuses=db.query(Bonus).filter(Bonus.status==bonus_state , Bonus.user_id==user.id).all()
+    return bonuses
 
 @bonus_router.delete('/bonus/{id}')
 async def delete_bonus(
@@ -155,4 +164,3 @@ async def delete_bonus(
     db.delete(bonuse)
     db.commit()
     db.refresh()
-    

@@ -89,7 +89,7 @@ class PurchaseRead(BaseModel):
     customer_id: int
     seller_id: int
     created_at: datetime
-
+    product:ProductRead
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -186,6 +186,6 @@ class BonusRead(BaseModel):
     created_at: datetime
 
     purchase: PurchaseRead
-    customer: UserCreate
+    customer: UserBase
 
     model_config = ConfigDict(from_attributes=True)
