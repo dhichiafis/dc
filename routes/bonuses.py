@@ -28,7 +28,8 @@ cloudinary.config(
 bonus_router=APIRouter(prefix='/bonuses',tags=['bonuses'])
 
 
-
+#we are claiming a bonus on only what we have purchased  so we enter the id of what we purchased right
+#that is how the logic flows
 @bonus_router.post('/claim',response_model=BonusRead)
 async def claim_bonus(
     id:int,
@@ -137,3 +138,21 @@ async def get_my_bonuses(
     db:Session=Depends(connect)):
     bonuses=db.query(Bonus).filter(Bonus.id==user.id).all()
     return bonuses 
+
+
+@bonus_router.delete('/bonus/{id}')
+async def delete_bonus(
+    id:int,
+    user:User=Depends(RoleChecker(['admin'])),
+    db:Session=Depends(connect)
+):
+    bonuse=db.query(Bonus).filter(Bonus.id==id).first()
+    if not bonuse:
+        raise HTTPException(
+            detail='bonus does not exist',
+            status_code=405
+        )
+    db.delete(bonuse)
+    db.commit()
+    db.refresh()
+    
