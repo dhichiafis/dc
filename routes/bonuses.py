@@ -33,7 +33,7 @@ bonus_router=APIRouter(prefix='/bonuses',tags=['bonuses'])
 @bonus_router.post('/claim',response_model=BonusRead)
 async def claim_bonus(
     id:int=Query(...),
-    file:UploadFile=File(),
+    file:UploadFile=File(...),
     title:str=Form(...),
     amount:float=Form(...),
     
