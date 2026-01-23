@@ -119,6 +119,57 @@ async def mpesa_callback(request: Request, db: Session = Depends(connect)):
     }
 
 
+@transaction_router.post('/payment/callback')
+async def process_payment_callback(
+    request:Request,db:Session=Depends(connect)):
+    payload=await request.json()
+    payment_callback=payload.get("Result")
+
+    print(payment_callback)
+    if not payment_callback:
+        return {}
+    conversation_id=payment_callback.get("ConversationID")
+    transaction_id=payment_callback.get('TransactionID')
+    result_code=payment_callback.get('ResultCode')
+    #find the transaction wit the checkout id
+    transaction=db.query(Transaction).filter(
+        Transaction.checkout_id==conversation_id).first()
+    if not transaction:
+        return {"ResultCode": 0, 
+                "ResultDesc": "Transaction not found"}
+    if result_code==0:
+        transaction.status="successful"
+        transaction.mpesa_receipt=transaction_id
+
+        cash_account = db.query(Account).filter(Account.name == "Cash Account").first()
+        deposit_account = db.query(Account).filter(Account.name == "Bank Deposit").first()
+
+        if not cash_account or not deposit_account:
+            raise HTTPException(status_code=400, detail="Account does not exist")
+
+        cash_entry = Entry(
+            description=transaction.description,
+            debit=transaction.amount,
+            credit=0.0,
+            account_id=cash_account.id,
+            transaction_id=transaction.id
+        )
+
+        deposit_entry = Entry(
+            description=transaction.description,
+            debit=0.0,
+            credit=transaction.amount,
+            account_id=deposit_account.id,
+            transaction_id=transaction.id
+        )
+
+        db.add_all([cash_entry, deposit_entry])
+    else:
+        transaction.status="failed"
+    db.commit()
+
+
+
 '''
 @transaction_router.post("/mpesa/callback")
 async def mpesa_callback(request: Request, db: Session = Depends(connect)):

@@ -70,6 +70,41 @@ def send_prompt_push(phone_number,amount):
 
 
 
+def disburse_payments(phone_number,amount):
+    #url="https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
+    #replace with live url
+    url="https://api.safaricom.co.ke/mpesa/b2c/v1/paymentrequest"
+    #replace with live shortcode
+    shortcode="4002159"
+    body={
+        "OriginatorConversationID": "a6351cf491ef493c831d82e337d4e2b4", 
+    "InitiatorName": "odhisochitigaone", 
+    "SecurityCredential": "gZGr4HXHlgiNvGGJoJKKdfGb7bGbh0oCWvK1ipfjOp9+jQ/S0Mn8OT2LURuHlJHVmeHsGhgiFyW0nvplbLDyYG9ipLrctsnLIuc2DNm9+9ftZk5fgVjKNRm2Jmn1NU6nK1bi1j06VV5rkOVs30qnuO1cJnTqGyf2ahf1Q6soaIakHgDbflYi92PVAnCgzcFgUAiV7xIT9VO0nAonoBzyVkmUc0rORScWRHiBmL6C1Smeyjn/FpBq3bejx/d26jNi11MpJKmmXvxjJ0WzT3veFkmrlvlxTZOKLPfxX9rdR0Zs+CMwOyLgCPAXk74XIGqFhoW2vRkaJuZxT7SUIYgOkw==", 
+    "CommandID": "BusinessPayment", 
+    "Amount": int(amount), 
+    "PartyA": shortcode, 
+    "PartyB": phone_number, 
+    "Remarks": "remarked", 
+    "QueueTimeOutURL": "https://mydomain.com/path", 
+    "ResultURL": "http://68.183.167.190:8000/transactions/payment/callback", 
+    "Occassion": "ChristmasPay" 
+    }
+    token=get_access_token()
+    headers={
+        "Content-Type": "application/json",
+    "Authorization": f"Bearer {token}"
+    }
+
+    response=requests.post(
+        url=url,
+        json=body,
+        headers=headers
+    )
+    if response.status_code==200:
+        print(response.json())
+    else:
+        print('faild to post')
+    return response.json()
 
 
 def format_phone_number(phone_number: str) -> str:
