@@ -63,3 +63,26 @@ async def get_my_purchases(
     purchases=db.query(Purchase).filter(Purchase.customer_id==user.id).all()
     return purchases
 
+
+
+@purchase_router.get("/all")
+async def get_all_purchases(
+    db:Session=Depends(connect)
+   ,user:User=Depends(RoleChecker(['admin'])) 
+    ):
+    purchases=db.query(Purchase).all()
+    return purchases
+
+@purchase_router.delete('/{id}')
+async def delete_purchase(
+    id:int,
+    db:Session=Depends(connect)):
+    purchase=db.query(Purchase).filter(Purchase.id==id).first()
+    if not purchase:
+        raise HTTPException(
+            detail='purchase is not found',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    
+    db.delete(purchase)
+    db.commit()
