@@ -51,7 +51,7 @@ def send_prompt_push(phone_number,amount):
   "PhoneNumber": phone_number,
   "TransactionDesc": "Test",
   "AccountReference": "Dhichiafis Tek System",
-  "CallBackURL": "http://68.183.167.190:8000/transactions/mpesa/callback"
+  "CallBackURL": "http://137.184.10.191:8000/transactions/mpesa/callback"
 }
     headers={
         "Content-Type": "application/json",
@@ -86,7 +86,7 @@ def disburse_payments(phone_number,amount):
     "PartyB": phone_number, 
     "Remarks": "remarked", 
     "QueueTimeOutURL": "https://mydomain.com/path", 
-    "ResultURL": "http://68.183.167.190:8000/transactions/payment/callback", 
+    "ResultURL": "http://137.184.10.191:8000/transactions/payment/callback", 
     "Occassion": "ChristmasPay" 
     }
     token=get_access_token()
