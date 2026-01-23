@@ -75,3 +75,21 @@ async def get_product(
                             status_code=status.HTTP_404_NOT_FOUND)
     
     return product 
+
+
+@product_router.delete('/{id}')
+async def delete_product(
+    id:int,
+    db:Session=Depends(connect),
+    user:User=Depends(RoleChecker(['admin']))
+    ):
+    product=db.query(Product).filter(Product.id==id).first()
+    if not product:
+        raise HTTPException(
+            detail='product not found',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    db.delete(product)
+    db.commit()
+    
+
