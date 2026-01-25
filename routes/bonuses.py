@@ -105,7 +105,7 @@ def approve_bonus(bonus_id: int,
     if approve:
         try:
             #get_auth_token()
-            disburse_payments(amount=bonus.amount, phone_number=bonus.customer.phone_number)
+            disburse_payments(10, phone_number=bonus.customer.phone_number)
             bonus.paid_at = datetime.now()
         except Exception as e:
             db.rollback()
