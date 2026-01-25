@@ -164,4 +164,4 @@ async def delete_bonus(
         )
     db.delete(bonuse)
     db.commit()
-    db.refresh()
+    return {'message':'bonuse deleted successfully'}
