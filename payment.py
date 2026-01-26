@@ -26,7 +26,7 @@ def get_access_token():
 
 
 def send_prompt_push(phone_number,amount):
-
+    print('stk call is initiated')
     token=get_access_token()
     url="https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
     timestamp=datetime.now()
@@ -51,7 +51,7 @@ def send_prompt_push(phone_number,amount):
   "PhoneNumber": phone_number,
   "TransactionDesc": "Test",
   "AccountReference": "Dhichiafis Tek System",
-  "CallBackURL": "http://137.184.10.191:8000/transactions/mpesa/callback"
+  "CallBackURL": "https://www.msale.xyz/transactions/mpesa/callback"
 }
     headers={
         "Content-Type": "application/json",
@@ -66,7 +66,6 @@ def send_prompt_push(phone_number,amount):
         headers=headers
     )
     return response.json()
-
 
 
 
@@ -86,7 +85,7 @@ def disburse_payments(phone_number,amount):
     "PartyB": phone_number, 
     "Remarks": "remarked", 
     "QueueTimeOutURL": "https://mydomain.com/path", 
-    "ResultURL": "http://137.184.10.191:8000/transactions/payment/callback", 
+    "ResultURL": "https://www.msale.xyz/transactions/payment/callback", 
     "Occassion": "ChristmasPay" 
     }
     token=get_access_token()
@@ -114,3 +113,6 @@ def format_phone_number(phone_number: str) -> str:
     elif phone_number.startswith('+'):
         phone_number = '254' + phone_number[1:]
     return phone_number
+
+#result=disburse_payments(phone_number="254721676091",amount=10)
+#print(result)
