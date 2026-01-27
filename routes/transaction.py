@@ -170,81 +170,6 @@ async def process_payment_callback(
 
 
 
-'''
-@transaction_router.post("/mpesa/callback")
-async def mpesa_callback(request: Request, db: Session = Depends(connect)):
-    payload = await request.json()
-
-    stk = payload["Body"]["stkCallback"]
-    checkout_id = stk["CheckoutRequestID"]
-    result_code = stk["ResultCode"]
-
-    transaction = db.query(Transaction).filter(
-        Transaction.checkout_id == checkout_id
-    ).first()
-
-    if not transaction:
-        return {"ResultCode": 1, "ResultDesc": "Transaction not found"}
-
-    # Handle successful payment
-    if result_code == 0:
-        callback_metadata = stk.get("CallbackMetadata", {}).get("Item", [])
-        receipt = None
-        for item in callback_metadata:
-            if item.get("Name") == "MpesaReceiptNumber":
-                receipt = item.get("Value")
-                break
-        transaction.status = "success"
-        transaction.mpesa_receipt = receipt
-    else:
-        # Payment failed or cancelled
-        transaction.status = "failed"
-        cash_account=db.query(Account).filter(Account.name=='Cash Account').first()
-        deposit_account=db.query(Account).filter(Account.name=='Bank Deposit').first()
-
-        if not cash_account:
-            raise HTTPException(
-                detail='account does not exist',
-            status_code=400
-            )
-        if not deposit_account:
-            raise HTTPException(
-            detail='account does not exist',
-            status_code=400
-            )
-        cash_entry=Entry(description=transaction.description,
-            debit=transaction.amount,
-            credit=0.0,
-            account_id=cash_account.id,
-            transaction_id=transaction.id
-            )
-    
-        deposit_entry=Entry(description=transaction.description,
-                    debit=0.0,credit=transaction.amount,
-                    account_id=deposit_account.id,
-                    transaction_id=transaction.id
-                    )
-        db.add_all([cash_entry,deposit_entry])
-        db.commit()
-        db.refresh(cash_entry)
-        db.refresh(deposit_entry)
-    
-        
-    
-    
-    else:
-        transaction.status = "failed"
-
-    db.commit()
-
-    # Safaricom expects THIS
-    return {
-        "ResultCode": 0,
-        "ResultDesc": "Accepted"
-    }
-
-'''
-
 @transaction_router.get('/by/me',response_model=list[TransactionBase])
 async def get_transactions_by_rm(
     db:Session=Depends(connect),
@@ -329,4 +254,81 @@ async def relation_manager_deposit(
     db.commit()
 
     return transaction
+'''
+
+
+
+'''
+@transaction_router.post("/mpesa/callback")
+async def mpesa_callback(request: Request, db: Session = Depends(connect)):
+    payload = await request.json()
+
+    stk = payload["Body"]["stkCallback"]
+    checkout_id = stk["CheckoutRequestID"]
+    result_code = stk["ResultCode"]
+
+    transaction = db.query(Transaction).filter(
+        Transaction.checkout_id == checkout_id
+    ).first()
+
+    if not transaction:
+        return {"ResultCode": 1, "ResultDesc": "Transaction not found"}
+
+    # Handle successful payment
+    if result_code == 0:
+        callback_metadata = stk.get("CallbackMetadata", {}).get("Item", [])
+        receipt = None
+        for item in callback_metadata:
+            if item.get("Name") == "MpesaReceiptNumber":
+                receipt = item.get("Value")
+                break
+        transaction.status = "success"
+        transaction.mpesa_receipt = receipt
+    else:
+        # Payment failed or cancelled
+        transaction.status = "failed"
+        cash_account=db.query(Account).filter(Account.name=='Cash Account').first()
+        deposit_account=db.query(Account).filter(Account.name=='Bank Deposit').first()
+
+        if not cash_account:
+            raise HTTPException(
+                detail='account does not exist',
+            status_code=400
+            )
+        if not deposit_account:
+            raise HTTPException(
+            detail='account does not exist',
+            status_code=400
+            )
+        cash_entry=Entry(description=transaction.description,
+            debit=transaction.amount,
+            credit=0.0,
+            account_id=cash_account.id,
+            transaction_id=transaction.id
+            )
+    
+        deposit_entry=Entry(description=transaction.description,
+                    debit=0.0,credit=transaction.amount,
+                    account_id=deposit_account.id,
+                    transaction_id=transaction.id
+                    )
+        db.add_all([cash_entry,deposit_entry])
+        db.commit()
+        db.refresh(cash_entry)
+        db.refresh(deposit_entry)
+    
+        
+    
+    
+    else:
+        transaction.status = "failed"
+
+    db.commit()
+
+    # Safaricom expects THIS
+    return {
+        "ResultCode": 0,
+        "ResultDesc": "Accepted"
+    }
+
 '''

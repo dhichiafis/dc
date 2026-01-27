@@ -103,7 +103,11 @@ def disburse_payments(phone_number,amount):
         print(response.json())
     else:
         print('faild to post')
-    return response.json()
+    data= response.json()
+    if data.get("ResponseCode") != "0":
+        raise Exception(f"B2C Failed: {data}")
+
+    return data
 
 
 def format_phone_number(phone_number: str) -> str:
