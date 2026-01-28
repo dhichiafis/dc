@@ -86,3 +86,4 @@ async def delete_purchase(
     
     db.delete(purchase)
     db.commit()
+    return {'message':'purchase successfully deleted'}

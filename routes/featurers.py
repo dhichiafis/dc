@@ -35,3 +35,15 @@ async def get_all_features(
     db:Session=Depends(connect)):
     features=db.query(Feature).all()
     return features
+
+
+@feature_router.delete('/{id}')
+async def delete_feature(id:int,db:Session=Depends(connect)):
+    feature=db.query(Feature).first()
+    if not feature:
+        raise HTTPException(
+            detail='feature not found',
+            status_code=405
+        )
+    db.commit()
+    return {'message':'feature deleted successfully'}

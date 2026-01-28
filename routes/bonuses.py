@@ -77,6 +77,7 @@ async def claim_bonus(
 
 @bonus_router.patch('/approve')
 def approve_bonus(bonus_id: int,
+                  amount:int,
         approve: bool, db: Session = Depends(connect),
         current_user: User = Depends(get_current_user)):
     """
@@ -107,7 +108,7 @@ def approve_bonus(bonus_id: int,
             #get_auth_token()
             phone=format_phone_number(bonus.customer.phone_number)
             disburse_payments(
-                phone_number=phone,amount=10 )
+                phone_number=phone,amount=amount )
             bonus.paid_at = datetime.now()
         except Exception as e:
             db.rollback()
@@ -165,4 +166,4 @@ async def delete_bonus(
         )
     db.delete(bonuse)
     db.commit()
-    return {'message':'bonuse deleted successfully'}
+    return {'message':'bonus deleted successfully'}
