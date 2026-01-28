@@ -12,7 +12,7 @@ from database import *
 from sqlalchemy.orm import Session
 from models.model import *
 from contextlib import asynccontextmanager
-from starlette_exporter import PrometheusMiddleware,handle_metrics
+#from starlette_exporter import PrometheusMiddleware,handle_metrics
 
 
 #Base.metadata.create_all(bind=engine)
@@ -62,8 +62,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(PrometheusMiddleware,app_name="Msale")
-app.add_route('/metrics',handle_metrics)
+#app.add_middleware(PrometheusMiddleware,app_name="Msale")
+#app.add_route('/metrics',handle_metrics)
 app.include_router(users_router)
 app.include_router(transaction_router)
 app.include_router(accounts_router)
