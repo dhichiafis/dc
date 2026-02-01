@@ -9,6 +9,43 @@ from fastapi import BackgroundTasks
 
 transaction_router=APIRouter(prefix='/transactions',tags=['transactions'])
 
+@transaction_router.post('/admin/deposit'
+    ,response_model=TransactionBase)
+async def admin_deposit(
+    trans:TransactionCreate,
+    background_tasks: BackgroundTasks,
+    user:User=Depends(RoleChecker(['admin'])),
+    db:Session=Depends(connect)):
+    
+    wallet=db.query(Wallet).filter(Wallet.user_id==user.id).first()
+    if not wallet:
+        raise HTTPException(
+            detail='wallet for the user does not',
+            status_code=403
+        )
+    #stk push to deposit since we are depositing into our account i expect it htoe be the following 
+    print(user.phone_number)
+    formatted_phone_number = format_phone_number(user.phone_number)
+    response = send_prompt_push(formatted_phone_number, trans.amount)
+    #response=send_prompt_push(user.phone_number,trans.amount)
+    
+    transaction=Transaction(description=trans.description,
+           amount=trans.amount,
+           wallet_id=wallet.id,
+                         
+        )
+    transaction.checkout_id=response.get('CheckoutRequestID')
+    transaction.status='pending'
+    transaction.type="deposit"
+    db.add(transaction)
+    db.commit()
+    db.refresh(transaction)
+    print(response)
+    #its herer that when the transaction is successfull we record the debit and credit right
+    #if the transaction is not successfull then the transaction status is turned to fiaild 
+    
+    
+    return transaction
 
 
 @transaction_router.post('/relation/manager/deposit'
