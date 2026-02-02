@@ -85,11 +85,11 @@ class PurchaseCreate(BaseModel):
     
 class PurchaseRead(BaseModel):
     id: int
-    product_id: int
+    product_id: int|None=None
     customer_id: int
     seller_id: int
     created_at: datetime
-    product:ProductRead
+    product:ProductRead|None=None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -185,7 +185,7 @@ class BonusRead(BaseModel):
     paid_at: Optional[datetime]
     created_at: datetime
 
-    purchase: PurchaseRead
-    customer: UserBase
+    purchase: PurchaseRead | None=None
+    customer: UserBase | None = None
 
     model_config = ConfigDict(from_attributes=True)

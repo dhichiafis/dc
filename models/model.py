@@ -69,13 +69,13 @@ class Product(Base):
     title=Column('title',String,unique=True)
     description=Column('description',String)
     created_at=Column('created_at',DateTime,default=datetime.now)
-    features=relationship('Feature',back_populates='product')
+    features=relationship('Feature',back_populates='product', cascade="all ,delete-orphan")
     creator=relationship('User',back_populates='products')
     purchases=relationship('Purchase',back_populates='product')
 
 class Feature(Base):
     __tablename__='features'
-    product_id=Column('product_id',Integer,ForeignKey('products.id'))
+    product_id=Column('product_id',Integer,ForeignKey('products.id',ondelete="CASCADE"),nullable=False)
     id=Column('id',Integer,primary_key=True)
     name=Column('name',String)
     product=relationship('Product',back_populates='features')
