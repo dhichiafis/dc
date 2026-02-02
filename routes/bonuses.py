@@ -106,6 +106,27 @@ def approve_bonus(bonus_id: int,
     if approve:
         try:
             #get_auth_token()
+            wallet = db.query(Wallet).filter(
+                Wallet.user_id == bonus.customer.id
+            ).first()
+
+            if not wallet:
+                raise HTTPException(400, "Customer wallet missing")
+
+            # ✅ CREATE TRANSACTION FIRST
+            transaction = Transaction(
+                type="bonus_payout",
+                wallet_id=wallet.id,
+                amount=amount,
+                description=f"Bonus payout #{bonus.id}",
+                status="pending"
+            )
+
+            db.add(transaction)
+            db.commit()
+            db.refresh(transaction)
+
+            transaction=Transaction()
             phone=format_phone_number(bonus.customer.phone_number)
             disburse_payments(
                 phone_number=phone,amount=amount )
