@@ -28,6 +28,21 @@ async def create_feature(
     db.refresh(feature)
     return feature 
 
+@feature_router.get('/all/{id}',response_model=List[FeatureRead])
+async def get_product_features(
+    id:int,
+    user:User=Depends(get_current_active_user),
+    db:Session=Depends(connect)):
+    
+    features=db.query(Feature).filter(Feature.product_id==id).all()
+    if not features:
+        raise HTTPException(
+            detail='features are not found for this product',
+            status_code=404
+        )
+    return features
+
+
 
 @feature_router.get('/all',response_model=List[FeatureRead])
 async def get_all_features(
