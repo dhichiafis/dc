@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 #from starlette_exporter import PrometheusMiddleware,handle_metrics
 
 
-#Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 def seed_accounts(db):
     account_names=['Cash Account','Bank Deposit','Cash Reward']
