@@ -1,11 +1,11 @@
-from fastapi import APIRouter,Depends,HTTPException,status
+from fastapi import APIRouter,Depends,HTTPException,status,BackgroundTasks
 from models.model import *
 from models.schema import *
 from sqlalchemy.orm import Session 
 from security import *
 from jose import jwt,JWTError
 from database import *
-
+from email import *
 from typing import Annotated
 users_router=APIRouter(tags=['users'],prefix='/users')
 
@@ -86,6 +86,7 @@ async def create_admin(
 @users_router.post('/new/customer',response_model=UserBase)
 async def create_new_customer(
     customer:CustomerCreate,
+    background_task:BackgroundTasks,
     db:Session=Depends(connect),
     ma:User=Depends(RoleChecker(['admin','relation manager']))
 ):
@@ -103,12 +104,29 @@ async def create_new_customer(
         )
     password=get_password_hash(customer.password)
     user=User(username=customer.username,
-              phone_number=customer.phone_number
+              phone_number=customer.phone_number,
+              email=customer.email
               ,password=password,role_id=role_exist.id,bank_id=bank.id)
     db.add(user)
     db.commit()
     db.refresh(user)
 
+    email=EmailLog(
+        title='user registration successfull',
+        body=f"the user hase been created successfyll the the username as {user.username} and password as {user.password}"
+        ,recipient=user.email,
+
+    )
+    db.add(email)
+    db.commit()
+    db.refresh(email)
+    background_task.add_task(
+        send_email,
+        to_email=email.recipient,
+        subject=email.title,
+        title=email.body
+        )
+    
     manage=Manage(
         subordinate_id=user.id,
         manager_id=ma.id
@@ -120,6 +138,7 @@ async def create_new_customer(
     wallet.user_id=user.id 
     wallet.is_bank=False
     db.add(wallet)
+
     db.commit()
     db.refresh(wallet)
     return user

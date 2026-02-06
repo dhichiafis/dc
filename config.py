@@ -8,6 +8,8 @@ class Config(BaseSettings):
     CLOUDINARY_CLOUD_NAME:str
     CLOUDINARY_API_KEY:str
     CLOUDINARY_API_SECRET:str
+    RESEND_API_KEY:str  
+    FROM_EMAIL:str
     DB_URL:str
     model_config=SettingsConfigDict(env_file='.env')
 

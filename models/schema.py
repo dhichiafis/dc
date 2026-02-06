@@ -105,6 +105,7 @@ class h(BaseModel):
 class CustomerCreate(BaseModel):
     username:str 
     password:str 
+    email:str 
     phone_number:str 
 
 class BankAdmin(BaseModel):
@@ -209,4 +210,11 @@ class ProfileBase(ProfileCreate):
     created_at:datetime
     updated_at:datetime
     model_config=ConfigDict(from_attributes=True)
-    
+
+class EmailLogCreate(BaseModel):
+    id:int 
+    titl:str
+    body:str 
+    recipient:str 
+    created_at:datetime
+    model_config=ConfigDict(from_attributes=True)

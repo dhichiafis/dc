@@ -47,6 +47,7 @@ class User(Base):
 
     username=Column('username',String,unique=True)
     password=Column('password',String)
+    email=Column('email',String,unique=True,nullable=False)
     phone_number=Column('phone_number',String,unique=True)
     created_at=Column('created_at',DateTime,default=datetime.now)
     updated_at=Column('updated_at',DateTime,default=datetime.now)
@@ -203,3 +204,12 @@ class Entry(Base):
     transaction=relationship('Transaction',back_populates='entries')
     account=relationship('Account',back_populates='entries')
 
+class EmailLog(Base):
+    __tablename__='emaillogs'
+    id=Column('id',Integer,primary_key=True)
+    title=Column('title',String)
+    body=Column('body',String)
+    recipient=Column('recipient',String)
+
+    created_at=Column(DateTime,default=datetime.now)
+    
