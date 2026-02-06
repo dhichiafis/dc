@@ -189,3 +189,24 @@ class BonusRead(BaseModel):
     customer: UserBase | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ReferedUser(BaseModel):
+    id:int 
+    username: str
+    phone_number: str
+    created_at:datetime
+
+
+class ProfileCreate(BaseModel):
+    status:str 
+    funded_amount:float
+    funded_status:str
+
+class ProfileBase(ProfileCreate):
+    id:int 
+
+    created_at:datetime
+    updated_at:datetime
+    model_config=ConfigDict(from_attributes=True)
+    

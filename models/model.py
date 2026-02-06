@@ -34,8 +34,8 @@ class Referal(Base):
     referred_id=Column(Integer,ForeignKey('users.id'),nullable=False,unique=True)
     created_at=Column(DateTime,default=datetime.now)
 
-    referrer=relationship("User",foreign_keys=[referrer_id],back_populates='referal_made')
-    referred=relationship("User",foreign_keys=[referred_id],back_populates='referal_recieved')
+    referrer=relationship("User",foreign_keys=[referrer_id],back_populates='referals_made')
+    referred=relationship("User",foreign_keys=[referred_id],back_populates='referals_recieved')
 
 
 
@@ -73,6 +73,16 @@ class User(Base):
         foreign_keys="Purchase.seller_id",
         back_populates="seller"
     )
+
+class Profile(Base):
+    __tablename__='profiles'
+    id=Column('id',Integer,primary_key=True)
+    status=Column('status',String)
+    funded_amount=Column('funded_amount',float,default=0.0)
+    funding_status=Column('funding_status',String)
+
+    created_at=Column('created_at',DateTime,default=datetime.now)
+    updated_at=Column('updated_at',DateTime,default=datetime.now)
 
 
 class Product(Base):

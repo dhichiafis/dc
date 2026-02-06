@@ -228,14 +228,14 @@ async def refer_user(
     return {"message": "Referral created successfully"}
     
 
-@users_router.get('/my/referals')
+@users_router.get('/my/referals',response_model=List[ReferedUser])
 async def get_users_refered_by_me(
     db:Session=Depends(connect),
     user:User=Depends(RoleChecker(['customer']))
 ):
     
     referals=user.referals_made
-    return [user for user in referals]
+    return [user.referred for user in referals]
 
 @users_router.get('/user/surbodinates',response_model=list[UserBase])
 async def get_user_managed_by(
