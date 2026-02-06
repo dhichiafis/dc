@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from security import *
 from jose import jwt,JWTError
 from database import *
-from email import *
+from email_utils import send_email
 from typing import Annotated
 users_router=APIRouter(tags=['users'],prefix='/users')
 
