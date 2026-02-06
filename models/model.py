@@ -78,7 +78,7 @@ class Profile(Base):
     __tablename__='profiles'
     id=Column('id',Integer,primary_key=True)
     status=Column('status',String)
-    funded_amount=Column('funded_amount',float,default=0.0)
+    funded_amount=Column('funded_amount',Float,default=0.0)
     funding_status=Column('funding_status',String)
 
     created_at=Column('created_at',DateTime,default=datetime.now)
