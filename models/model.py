@@ -62,6 +62,8 @@ class User(Base):
     products=relationship('Product',back_populates='creator')
     bonuses=relationship('Bonus',back_populates='customer')
 
+    profile=relationship('Profile',back_populates='user',uselist=False)
+
     purchases_as_customer = relationship(
         "Purchase",
         foreign_keys="Purchase.customer_id",
@@ -77,13 +79,14 @@ class User(Base):
 class Profile(Base):
     __tablename__='profiles'
     id=Column('id',Integer,primary_key=True)
+    user_id=Column('user_id',ForeignKey('users.id'),nullable=False,unique=True)
     status=Column('status',String)
     funded_amount=Column('funded_amount',Float,default=0.0)
     funding_status=Column('funding_status',String)
 
     created_at=Column('created_at',DateTime,default=datetime.now)
     updated_at=Column('updated_at',DateTime,default=datetime.now)
-
+    user=relationship('User',back_populates='profile',uselist=False)
 
 class Product(Base):
     __tablename__='products'

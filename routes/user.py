@@ -64,7 +64,16 @@ async def create_admin(
     db.add(user)
     db.commit()
     db.refresh(user)
+    profile=Profile(
+        status='customer',
+        funded_amount=0.0,
+        funding_status="pending",
+    )
+    profile.user_id=user.id
 
+    db.add(profile)
+    db.commit()
+    db.refresh(profile)
     wallet=Wallet()
     wallet.user_id=user.id 
     wallet.is_bank=True
