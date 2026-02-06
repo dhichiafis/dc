@@ -105,13 +105,14 @@ class h(BaseModel):
 class CustomerCreate(BaseModel):
     username:str 
     password:str 
-    email:str 
+    email:str|None=None 
     phone_number:str 
 
 class BankAdmin(BaseModel):
     bank_name:str 
     username:str 
     phone_number:str 
+    email:str|None=None
     password:str 
 
 
@@ -119,6 +120,7 @@ class RmCreate(BaseModel):
     username:str 
     password:str 
     phone_number:str 
+    email:str|None=None
 
 
 class EntryCreate(BaseModel):
