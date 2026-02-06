@@ -60,6 +60,7 @@ async def create_admin(
     password=get_password_hash(bank_admin.password)
     user=User(username=bank_admin.username,
             phone_number=bank_admin.phone_number,
+            email=bank_admin.email,
             password=password,bank_id=bank.id,role_id=role_exist.id)
     db.add(user)
     db.commit()
@@ -172,6 +173,7 @@ async def create_relationship_manager(
     user=User(username=user.username,
             password=password,
             phone_number=user.phone_number,
+            email=user.email,
             bank_id=bank_exist.id,
             role_id=role_exist.id)
     db.add(user)
