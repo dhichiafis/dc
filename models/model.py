@@ -35,7 +35,7 @@ class Referal(Base):
     created_at=Column(DateTime,default=datetime.now)
 
     referrer=relationship("User",foreign_keys=[referrer_id],back_populates='referals_made')
-    referred=relationship("User",foreign_keys=[referred_id],back_populates='referals_recieved')
+    referred=relationship("User",foreign_keys=[referred_id],back_populates='referal_recieved')
 
 
 
@@ -56,7 +56,7 @@ class User(Base):
     managed_by = relationship('Manage',foreign_keys='Manage.subordinate_id', back_populates='subordinate', uselist=False)
     
     referals_made=relationship('Referal',foreign_keys='Referal.referrer_id',back_populates='referrer')
-    referals_recieved=relationship('Referal',foreign_keys='Referal.referred_id',back_populates='referred',uselist=False)
+    referal_recieved=relationship('Referal',foreign_keys='Referal.referred_id',back_populates='referred',uselist=False)
     
     wallet=relationship('Wallet',back_populates='user')
     products=relationship('Product',back_populates='creator')
