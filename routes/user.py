@@ -190,6 +190,52 @@ async def read_users_me(
 ):
     return current_user
 
+@users_router.post('/refer')
+async def refer_user(
+    username:str,
+    user:User=Depends(RoleChecker(['customer'])),
+    db:Session=Depends(connect)):
+    refered_user=db.query(User).filter(User.username==username).first()
+    if not refered_user:
+        raise HTTPException(
+            detail='user does not exist',
+            status_code=405
+        )
+    
+    #preventing self referal
+    if refer_user.id==user.id:
+        raise HTTPException(
+            status_code=400,
+            detail='you cannot refer yourself'
+        )
+    
+    # check already referred (ONE-TO-ONE rule)
+    if refered_user.referral_received:
+        raise HTTPException(
+            status_code=400,
+            detail="User already referred"
+        )
+    
+     # create referral
+    referral = Referal(
+        referrer_id=user.id,
+        referred_id=refered_user.id
+    )
+
+    db.add(referral)
+    db.commit()
+
+    return {"message": "Referral created successfully"}
+    
+
+@users_router.get('/my/referals')
+async def get_users_refered_by_me(
+    db:Session=Depends(connect),
+    user:User=Depends(RoleChecker(['customer']))
+):
+    
+    referals=user.referals_made
+    return [user for user in referals]
 
 @users_router.get('/user/surbodinates',response_model=list[UserBase])
 async def get_user_managed_by(

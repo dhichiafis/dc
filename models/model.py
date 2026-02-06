@@ -27,6 +27,17 @@ class Manage(Base):
     manager = relationship('User', foreign_keys=[manager_id], back_populates='managing')
     subordinate = relationship('User', foreign_keys=[subordinate_id], back_populates='managed_by')
 
+class Referal(Base):
+    __tablename__='referals'
+    id=Column(Integer,primary_key=True)
+    referrer_id=Column(Integer,ForeignKey('users.id'),nullable=False)
+    referred_id=Column(Integer,ForeignKey('users.id'),nullable=False,unique=True)
+    created_at=Column(DateTime,default=datetime.now)
+
+    referrer=relationship("User",foreign_keys=[referrer_id],back_populates='referal_made')
+    referred=relationship("User",foreign_keys=[referred_id],back_populates='referal_recieved')
+
+
 
 class User(Base):
     __tablename__='users'
@@ -43,7 +54,10 @@ class User(Base):
     role=relationship('Role',back_populates='users')
     managing = relationship('Manage', foreign_keys='Manage.manager_id', back_populates='manager')
     managed_by = relationship('Manage',foreign_keys='Manage.subordinate_id', back_populates='subordinate', uselist=False)
-
+    
+    referals_made=relationship('Referal',foreign_keys='Referal.referrer_id',back_populates='referrer')
+    referals_recieved=relationship('Referal',foreign_keys='Referal.referred_id',back_populates='referred',uselist=False)
+    
     wallet=relationship('Wallet',back_populates='user')
     products=relationship('Product',back_populates='creator')
     bonuses=relationship('Bonus',back_populates='customer')
