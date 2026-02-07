@@ -44,6 +44,7 @@ class UserBase(BaseModel):
     id:int 
     username:str
     phone_number:str 
+    email:str 
     role_id:int 
     bank_id:int 
     role:RoleBase
