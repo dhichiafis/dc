@@ -221,7 +221,7 @@ async def read_users_me(
     return current_user
 
 @users_router.post('/refer')
-async def refer_user(
+async def refer_new_user(
     username:str,
     user:User=Depends(RoleChecker(['customer'])),
     db:Session=Depends(connect)):
