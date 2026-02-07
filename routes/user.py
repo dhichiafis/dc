@@ -233,7 +233,7 @@ async def refer_user(
         )
     
     #preventing self referal
-    if refer_user.id==user.id:
+    if refered_user.id==user.id:
         raise HTTPException(
             status_code=400,
             detail='you cannot refer yourself'
