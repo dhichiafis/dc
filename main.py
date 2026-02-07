@@ -1,3 +1,4 @@
+import os  
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, SessionFactory
@@ -13,7 +14,7 @@ from routes.purchase import purchase_router
 from routes.bonuses import bonus_router
 from routes.accounts import accounts_router
 from loguru import logger
-
+import sys
 # OpenTelemetry imports
 
 
@@ -79,8 +80,16 @@ app.add_middleware(
 #app.add_middleware(PrometheusMiddleware, app_name="Msale")
 #app.add_route("/metrics", handle_metrics)
 
-
-logger.add("app.log", rotation="10 MB")  # Log to file
+print(os.getcwd())
+logger.add("app.log", rotation="10 MB", enqueue=True, backtrace=True, diagnose=True)  # Log to file
+logger.remove()
+logger.add(
+    sys.stdout,
+    level="INFO",
+    format="{time} | {level} | {extra[app]} | {message}",
+    backtrace=True,
+    diagnose=True,
+)
 
 @app.middleware("http")
 async def log_requests(request, call_next):

@@ -249,7 +249,9 @@ async def refer_user(
      # create referral
     referral = Referal(
         referrer_id=user.id,
-        referred_id=refered_user.id
+        referred_id=refered_user.id,
+        amount=0.0,
+        status='eligible'
     )
 
     db.add(referral)

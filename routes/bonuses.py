@@ -75,6 +75,8 @@ async def claim_bonus(
     db.refresh(nbonus)
     return nbonus
 
+
+
 @bonus_router.patch('/approve')
 def approve_bonus(bonus_id: int,
                   amount:int,
@@ -126,10 +128,34 @@ def approve_bonus(bonus_id: int,
             db.commit()
             db.refresh(transaction)
 
-            transaction=Transaction()
+            
             phone=format_phone_number(bonus.customer.phone_number)
             disburse_payments(
                 phone_number=phone,amount=amount )
+            
+            referal=db.query(Referal).filter(Referal.referred_id==bonus.customer.id).first()
+            if referal and referal.status!='paid':
+                referrer=db.query(User).filter(User.id==referal.referrer_id).first()
+
+                referal_amount=bonus.amount*0.1
+                
+                disburse_payments(
+                    phone_number=format_phone_number(referrer.phone_number),
+                    amount=referal_amount)
+                
+                transaction = Transaction(
+                type="referal payout",
+                wallet_id=wallet.id,
+                amount=referal_amount,
+                description=f"Bonus payout #{bonus.id}",
+                status="pending"
+            )
+
+                db.add(transaction)
+                db.commit()
+                db.refresh(transaction)
+                referal.status="paid"
+                referal.paid_at=datetime.now()
             bonus.paid_at = datetime.now()
         except Exception as e:
             db.rollback()
@@ -144,8 +170,6 @@ def approve_bonus(bonus_id: int,
         "amount": bonus.amount,
         "title": bonus.title
     } 
-
-
 
 
 @bonus_router.get('/all',response_model=list[BonusRead])

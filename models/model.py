@@ -33,7 +33,9 @@ class Referal(Base):
     referrer_id=Column(Integer,ForeignKey('users.id'),nullable=False)
     referred_id=Column(Integer,ForeignKey('users.id'),nullable=False,unique=True)
     created_at=Column(DateTime,default=datetime.now)
-
+    amount=Column('amount',Float,default=0.0)
+    status=Column('status',String)
+    paid_at=Column('paid_at',DateTime,default=datetime.now)
     referrer=relationship("User",foreign_keys=[referrer_id],back_populates='referals_made')
     referred=relationship("User",foreign_keys=[referred_id],back_populates='referal_recieved')
 
