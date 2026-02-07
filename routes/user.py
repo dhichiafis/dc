@@ -240,7 +240,7 @@ async def refer_user(
         )
     
     # check already referred (ONE-TO-ONE rule)
-    if refered_user.referral_received:
+    if refered_user.referal_received:
         raise HTTPException(
             status_code=400,
             detail="User already referred"
