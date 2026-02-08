@@ -1,22 +1,20 @@
-# Use an official Python runtime as a parent image
+# Base image
 FROM python:3.12-slim
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy requirements first to leverage cache
+COPY requirements.txt .
 
 # Install dependencies
-RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 8000 available to the world outside this container
+# Copy all code
+COPY . .
 
-COPY  . /app 
-
-
+# Expose port
 EXPOSE 8000
 
-# Command to run the application (this will be overridden by docker-compose)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000","--workers","4"]
+# Entrypoint to run migrations then start app
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

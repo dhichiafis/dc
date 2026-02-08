@@ -222,10 +222,10 @@ async def read_users_me(
 
 @users_router.post('/refer/new/user')
 async def refer_new_user(
-    username:str,
+    payload:ReferUserName,
     user:User=Depends(RoleChecker(['customer'])),
     db:Session=Depends(connect)):
-    refered_user=db.query(User).filter(User.username==username).first()
+    refered_user=db.query(User).filter(User.username==payload.username).first()
     if not refered_user:
         raise HTTPException(
             detail='user does not exist',
@@ -233,14 +233,14 @@ async def refer_new_user(
         )
     
     #preventing self referal
-    if refered_user.id==user.id:
-        raise HTTPException(
-            status_code=400,
-            detail='you cannot refer yourself'
-        )
+   # if refered_user.id==user.id:
+    #    raise HTTPException(
+     #       status_code=400,
+      #      detail='you cannot refer yourself'
+       # )
     
     # check already referred (ONE-TO-ONE rule)
-    if refered_user.referal_received:
+    if refered_user.referal_recieved:
         raise HTTPException(
             status_code=400,
             detail="User already referred"

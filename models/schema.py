@@ -23,6 +23,8 @@ class Token(BaseModel):
     token_type: str
 
 
+
+
 class TokenData(BaseModel):
     username: str | None = None
     #role:str 
@@ -39,6 +41,8 @@ class UserCreate(BaseModel):
     username:str 
     password:str 
 
+class ReferUserName(BaseModel):
+    username:str
 
 class UserBase(BaseModel):
     id:int 
