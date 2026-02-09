@@ -70,7 +70,13 @@ async def claim_bonus(
         image=image,
         status=BonusStatus.CLAIM.value
     )
-    db.add(nbonus)
+    profile=current_user.profile
+
+    profile.funded_amount=amount
+    profile.funded_status="funded"
+    profile.updated_at=datetime.now
+
+    db.add_all([nbonus,])
     db.commit()
     db.refresh(nbonus)
     return nbonus

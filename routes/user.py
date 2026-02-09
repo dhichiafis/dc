@@ -111,6 +111,13 @@ async def create_new_customer(
     db.add(user)
     db.commit()
     db.refresh(user)
+    profile=Profile(
+        status='customer',
+        funded_amount=0.0,
+        funded_status='unfunded'
+    )
+    profile.user_id=user.id
+    profile.created_at=datetime.now()
 
     email=EmailLog(
         title='user registration successfull',
@@ -118,9 +125,9 @@ async def create_new_customer(
         ,recipient=user.email,
 
     )
-    db.add(email)
+    db.add(profile)
     db.commit()
-    db.refresh(email)
+    db.refresh(profile)
     background_task.add_task(
         send_email,
         to_email=email.recipient,
