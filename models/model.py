@@ -89,6 +89,7 @@ class Profile(Base):
 
     created_at=Column('created_at',DateTime,default=datetime.now)
     updated_at=Column('updated_at',DateTime,default=datetime.now)
+    
     user=relationship('User',back_populates='profile',uselist=False)
 
 class Product(Base):

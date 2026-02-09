@@ -47,6 +47,7 @@ class ReferUserName(BaseModel):
 class UserBase(BaseModel):
     id:int 
     username:str
+    #email:str
     phone_number:str 
     email:str 
     role_id:int 
@@ -65,6 +66,9 @@ class BankBase(BankCreate):
 
 class FeatureCreate(BaseModel):
     name:str 
+
+
+
 class FeatureRead(FeatureCreate):
     id:int 
     product_id:int 

@@ -9,9 +9,11 @@ from routes.user import users_router
 from routes.transaction import transaction_router
 from routes.roles import roles_router
 from routes.products import product_router
+from routes.profile import profiles_router
 from routes.featurers import feature_router
 from routes.purchase import purchase_router
 from routes.bonuses import bonus_router
+
 from routes.accounts import accounts_router
 from loguru import logger
 import sys
@@ -99,14 +101,18 @@ async def log_requests(request, call_next):
     return response
 
 # Routers
+
 app.include_router(users_router)
 app.include_router(transaction_router)
 app.include_router(accounts_router)
 app.include_router(roles_router)
+app.include_router(profiles_router)
 app.include_router(product_router)
 app.include_router(purchase_router)
 app.include_router(bonus_router)
 app.include_router(feature_router)
+
+
 
 # Home endpoint
 @app.get("/")
