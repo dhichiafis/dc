@@ -73,8 +73,8 @@ async def claim_bonus(
     profile=current_user.profile
 
     profile.funded_amount=amount
-    profile.funded_status="funded"
-    profile.updated_at=datetime.now
+    profile.funding_status="funded"
+    profile.updated_at=datetime.now()
 
     db.add_all([nbonus,])
     db.commit()

@@ -44,25 +44,13 @@ class UserCreate(BaseModel):
 class ReferUserName(BaseModel):
     username:str
 
-class UserBase(BaseModel):
-    id:int 
-    username:str
-    #email:str
-    phone_number:str 
-    email:str 
-    role_id:int 
-    bank_id:int 
-    role:RoleBase
+
     
     model_config=ConfigDict(form_attributes=True)
 
 class BankCreate(BaseModel):
     name:str 
 
-class BankBase(BankCreate):
-    id:int 
-    users:List[UserBase]
-    model_config=ConfigDict(form_attributes=True)
 
 class FeatureCreate(BaseModel):
     name:str 
@@ -117,6 +105,19 @@ class CustomerCreate(BaseModel):
     email:str|None=None 
     phone_number:str 
 
+class ProfileCreate(BaseModel):
+    status:str 
+    funded_amount:float
+    funding_status:str
+
+class ProfileBase(ProfileCreate):
+    id:int 
+    user_id:int
+    created_at:datetime
+    updated_at:datetime
+    model_config=ConfigDict(from_attributes=True)
+
+
 class BankAdmin(BaseModel):
     bank_name:str 
     username:str 
@@ -124,7 +125,24 @@ class BankAdmin(BaseModel):
     email:str|None=None
     password:str 
 
+class UserBase(BaseModel):
+    id:int 
+    username:str
+    #email:str
+    phone_number:str 
+    email:str 
+    role_id:int 
+    bank_id:int 
+    role:RoleBase
+    profile:ProfileBase | None=None
+    created_at:datetime
+    updated_at:datetime
+    model_config=ConfigDict(from_attributes=True)
 
+class BankBase(BankCreate):
+    id:int 
+    users:List[UserBase]
+    model_config=ConfigDict(form_attributes=True)
 class RmCreate(BaseModel):
     username:str 
     password:str 
@@ -210,17 +228,6 @@ class ReferedUser(BaseModel):
     created_at:datetime
 
 
-class ProfileCreate(BaseModel):
-    status:str 
-    funded_amount:float
-    funded_status:str
-
-class ProfileBase(ProfileCreate):
-    id:int 
-    user_id:int
-    created_at:datetime
-    updated_at:datetime
-    model_config=ConfigDict(from_attributes=True)
 
 class EmailLogCreate(BaseModel):
     id:int 
@@ -229,3 +236,5 @@ class EmailLogCreate(BaseModel):
     recipient:str 
     created_at:datetime
     model_config=ConfigDict(from_attributes=True)
+
+

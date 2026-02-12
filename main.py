@@ -83,7 +83,7 @@ app.add_middleware(
 #app.add_route("/metrics", handle_metrics)
 
 print(os.getcwd())
-logger.add("app.log", rotation="10 MB", enqueue=True, backtrace=True, diagnose=True)  # Log to file
+#logger.add("app.log", rotation="10 MB", enqueue=True, backtrace=True, diagnose=True)  # Log to file
 logger.remove()
 logger.add(
     sys.stdout,

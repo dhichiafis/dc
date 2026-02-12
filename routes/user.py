@@ -114,7 +114,7 @@ async def create_new_customer(
     profile=Profile(
         status='customer',
         funded_amount=0.0,
-        funded_status='unfunded'
+        funding_status='unfunded'
     )
     profile.user_id=user.id
     profile.created_at=datetime.now()
@@ -190,7 +190,17 @@ async def create_relationship_manager(
         subordinate_id=user.id,
         manager_id=us.id
     )
-    db.add(manage)
+    profile=Profile(
+        status='customer',
+        funded_amount=0.0,
+        funding_status="pending",
+    )
+    profile.user_id=user.id
+
+    db.add_all([profile,manage])
+    db.commit()
+    db.refresh(profile)
+    db.refresh(manage)
     db.commit()
     wallet=Wallet()
     wallet.user_id=user.id
