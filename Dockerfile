@@ -18,7 +18,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
 
 # Install netcat
-RUN apt-get update && apt-get install -y netcat && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y netcat && rm -rf /var/lib/apt/lists/*
+# Install netcat (real package)
+RUN apt-get update && \
+    apt-get install -y netcat-openbsd && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
