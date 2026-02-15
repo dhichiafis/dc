@@ -23,7 +23,7 @@ import sys
 # -----------------------------
 # Database & metadata
 # -----------------------------
-Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
 #SQLAlchemyInstrumentor().instrument(engine=engine)
 
 # -----------------------------
@@ -54,6 +54,7 @@ def seed_roles(db):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db = SessionFactory()
+    Base.metadata.create_all(bind=engine)
     seed_roles(db=db)
     seed_accounts(db=db)
     yield
