@@ -1,3 +1,4 @@
+version: "3.9"  # always specify version
 
 services:
   db:
@@ -17,25 +18,11 @@ services:
       retries: 10
       timeout: 5s
 
-  #migrate:
-   # build: .
-    #container_name: ale3_migrate
-    #depends_on:
-     # db:
-      #  condition: service_healthy
-    #environment:
-     # DB_URL: postgresql+psycopg2://aleuser:alepass@db:5432/aledb
-    #entrypoint: >
-     # sh -c "
-      #echo 'Waiting for DB to be ready...' &&
-      #sleep 5 &&
-      #restart: "no"
   migrate:
     build: .
     container_name: ale3_migrate
     depends_on:
-      - db:
-        #condition: service_healthy
+      - db
     environment:
       DB_URL: postgresql+psycopg2://aleuser:alepass@db:5432/aledb
     entrypoint: ["/app/migrate-entrypoint.sh"]
@@ -45,8 +32,7 @@ services:
     build: .
     container_name: ale3_app
     depends_on:
-      migrate:
-        condition: service_completed_successfully
+      - migrate
     environment:
       DB_URL: postgresql+psycopg2://aleuser:alepass@db:5432/aledb
     ports:
@@ -55,3 +41,4 @@ services:
 
 volumes:
   postgres_data:
+
