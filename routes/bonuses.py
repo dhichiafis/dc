@@ -143,7 +143,7 @@ def approve_bonus(bonus_id: int,
             if referal and referal.status!='paid':
                 referrer=db.query(User).filter(User.id==referal.referrer_id).first()
 
-                referal_amount=bonus.amount*0.1
+                referal_amount=bonus.amount*0.05
                 
                 disburse_payments(
                     phone_number=format_phone_number(referrer.phone_number),
