@@ -31,6 +31,7 @@ services:
       sleep 5 &&
       alembic upgrade head
       "
+      
     restart: "no"
 
   app:
