@@ -17,21 +17,28 @@ services:
       retries: 10
       timeout: 5s
 
+  #migrate:
+   # build: .
+    #container_name: ale3_migrate
+    #depends_on:
+     # db:
+      #  condition: service_healthy
+    #environment:
+     # DB_URL: postgresql+psycopg2://aleuser:alepass@db:5432/aledb
+    #entrypoint: >
+     # sh -c "
+      #echo 'Waiting for DB to be ready...' &&
+      #sleep 5 &&
+      #restart: "no"
   migrate:
     build: .
     container_name: ale3_migrate
     depends_on:
-      db:
-        condition: service_healthy
+    db:
+      condition: service_healthy
     environment:
       DB_URL: postgresql+psycopg2://aleuser:alepass@db:5432/aledb
-    entrypoint: >
-      sh -c "
-      echo 'Waiting for DB to be ready...' &&
-      sleep 5 &&
-      alembic upgrade head
-      "
-      
+    entrypoint: ["/app/migrate-entrypoint.sh"]
     restart: "no"
 
   app:
