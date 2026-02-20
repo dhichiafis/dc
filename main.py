@@ -13,10 +13,12 @@ from routes.profile import profiles_router
 from routes.featurers import feature_router
 from routes.purchase import purchase_router
 from routes.bonuses import bonus_router
-
+from fastapi.responses import RedirectResponse
 from routes.accounts import accounts_router
 from loguru import logger
 import sys
+
+from fastapi.staticfiles import StaticFiles
 # OpenTelemetry imports
 
 
@@ -68,7 +70,7 @@ app = FastAPI(
     title="Msale",
     description="Backend app that manages sales and rewards customers for purchases"
 )
-
+app.mount("/static", StaticFiles(directory="dc/static"), name="static")
 #FastAPIInstrumentor().instrument_app(app)
 
 # Middleware
@@ -122,3 +124,7 @@ async def home():
 
 
 
+
+@app.get("/privacy")
+async def privacy_policy():
+    return RedirectResponse(url="/static/privacy.html")
