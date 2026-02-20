@@ -70,7 +70,7 @@ app = FastAPI(
     title="Msale",
     description="Backend app that manages sales and rewards customers for purchases"
 )
-app.mount("/static", StaticFiles(directory="dc/static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 #FastAPIInstrumentor().instrument_app(app)
 
 # Middleware
